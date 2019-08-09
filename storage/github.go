@@ -141,7 +141,6 @@ func (g GitHub) Put(fp string) error {
 		return ErrNoChange
 	}
 
-	os.Exit(0)
 	_, err = w.Commit("backup file by grasshopper", &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "grasshopper",
