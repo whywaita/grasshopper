@@ -22,7 +22,7 @@ func ToTreePath(fp string) (string, error) {
 		return "", errors.Wrap(err, "failed to get Hostname")
 	}
 
-	p := filepath.Join(hostname, fp)
+	p := filepath.Join("backup", hostname, fp)
 
 	return p, nil
 }

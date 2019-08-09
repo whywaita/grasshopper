@@ -82,6 +82,7 @@ func (g GitHub) Put(fp string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to clone GitHub repository")
 	}
+	defer os.Remove(dir)
 
 	src, err := os.Open(fp)
 	if err != nil {
