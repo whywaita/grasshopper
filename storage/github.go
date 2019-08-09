@@ -24,6 +24,10 @@ const (
 	envGitHubToken = "GH_GITHUB_TOKEN"
 )
 
+var (
+	ErrNoChange = errors.New("No Change")
+)
+
 type GitHub struct {
 	Repo          string
 	User          string
@@ -60,19 +64,47 @@ func NewGitHubClient() GitHub {
 	return g
 }
 
+func (g GitHub) mkDir(treePath string) (string, string, error) {
+	// make base directory, ${TMPDIR}/grasshopper-${UUID}
+	u := uuid.New()
+	ghDir := fmt.Sprintf("%s-%s", "grasshopper", u.String())
+	repoBaseDir := filepath.Join(os.TempDir(), ghDir)
+
+	destFilePath := filepath.Join(repoBaseDir, treePath)
+	err := os.MkdirAll(filepath.Dir(destFilePath), 0775)
+	return repoBaseDir, destFilePath, err
+}
+
+func (g GitHub) copyTargetFile(sourcePath, destPath string) error {
+	src, err := os.Open(sourcePath)
+	if err != nil {
+		return errors.Wrap(err, "failed to open source file")
+	}
+	defer src.Close()
+
+	dest, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE, 0775)
+	if err != nil {
+		return errors.Wrap(err, "failed to create dest file")
+	}
+	defer dest.Close()
+
+	_, err = io.Copy(dest, src)
+	if err != nil {
+		return errors.Wrap(err, "failed to copy file")
+	}
+
+	return nil
+}
+
 func (g GitHub) Put(fp string) error {
 	tfp, err := file.ToTreePath(fp)
 	if err != nil {
 		return errors.Wrap(err, "failed to convert tree path")
 	}
 
-	u := uuid.New()
-	ghDir := fmt.Sprintf("%s-%s", "grasshopper", u.String())
-	dir := filepath.Join(os.TempDir(), ghDir)
-	destFile := filepath.Join(dir, tfp)
-	err = os.MkdirAll(filepath.Dir(destFile), 0775)
+	repoBaseDir, destFilePath, err := g.mkDir(tfp)
 
-	r, err := git.PlainClone(dir, false, &git.CloneOptions{
+	r, err := git.PlainClone(repoBaseDir, false, &git.CloneOptions{
 		URL: g.Repo,
 		Auth: &http.BasicAuth{
 			Username: g.User,
@@ -82,21 +114,9 @@ func (g GitHub) Put(fp string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to clone GitHub repository")
 	}
-	defer os.Remove(dir)
+	defer os.Remove(repoBaseDir)
 
-	src, err := os.Open(fp)
-	if err != nil {
-		return errors.Wrap(err, "failed to open source file")
-	}
-	defer src.Close()
-
-	dest, err := os.Create(destFile)
-	if err != nil {
-		return errors.Wrap(err, "failed to create dest file")
-	}
-	defer dest.Close()
-
-	_, err = io.Copy(dest, src)
+	err = g.copyTargetFile(fp, destFilePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to copy file")
 	}
@@ -111,6 +131,17 @@ func (g GitHub) Put(fp string) error {
 		return errors.Wrap(err, "failed to git add file")
 	}
 
+	status, err := w.Status()
+	if err != nil {
+		return errors.Wrap(err, "failed to git status")
+	}
+
+	if len(status) == 0 {
+		// no change
+		return ErrNoChange
+	}
+
+	os.Exit(0)
 	_, err = w.Commit("backup file by grasshopper", &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "grasshopper",

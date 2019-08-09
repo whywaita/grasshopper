@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,19 +17,27 @@ func main() {
 		log.Fatal("grasshopper")
 	}
 
-	path, err := getFullPath(args[1])
+	os.Exit(run(args[1]))
+}
+
+func run(filePath string) int {
+	path, err := getFullPath(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	client := storage.NewGitHubClient()
 	err = client.Put(path)
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		os.Exit(1)
+	if errors.Cause(err) == storage.ErrNoChange {
+		// no change
+		return 1
+	} else if err != nil {
+		log.Printf("%+v\n", err)
+		return 1
 	}
 
-	log.Println("file upload is done.")
+	log.Printf("detect to change! backup is done!\nfile: %s\n", filePath)
+	return 0
 }
 
 func getFullPath(path string) (string, error) {
