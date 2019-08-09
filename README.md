@@ -1,6 +1,6 @@
 # GrassHopper
 
-simply backup solution to GitHub.
+very simply backup solution. GitHub as backend!
 
 ## Usage
 
