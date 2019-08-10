@@ -36,7 +36,7 @@ func run(filePath string) int {
 		return 1
 	}
 
-	log.Printf("detect to change! backup is done!\nfile: %s\n", filePath)
+	log.Printf("detect to change! backup is done! file: %s\n", filePath)
 	return 0
 }
 
