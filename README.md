@@ -19,6 +19,7 @@ $ grasshopper you-want-to-backup-file
 - Get GitHub Personal token
   - ref: https://github.blog/2013-05-16-personal-api-tokens/
 - build binary with embedded value
+  - Be handle binaries carefully, do not publish!
 
 ```shell script
 // change me to oneline
