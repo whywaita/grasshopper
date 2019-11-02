@@ -21,7 +21,10 @@ $ grasshopper you-want-to-backup-file
 - build binary with embedded value
 
 ```shell script
-$ go build . -o grasshopper -ldflags '-X main.DefaultGitHubRepository=<your repo> -X main.DefaultGitHubUser=<your user> -X main.DefaultGitHubToken=<your token> '
+// change me to oneline
+$ go build . -o grasshopper -ldflags '-X main.DefaultGitHubRepository=<your repo> 
+  -X main.DefaultGitHubUser=<your user> 
+  -X main.DefaultGitHubToken=<your token> '
 $ mv grasshopper /your/binary/path/
 ```
 
