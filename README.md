@@ -18,17 +18,10 @@ $ grasshopper you-want-to-backup-file
 
 - Get GitHub Personal token
   - ref: https://github.blog/2013-05-16-personal-api-tokens/
-- Edit config.go
-  - Add Repository / User / Personal API Token
+- build binary with embedded value
 
 ```shell script
-$ vim ./storage/github_config.go
-```
-
-- build binary
-
-```shell script
-$ go build . -o grasshopper
+$ go build . -o grasshopper -ldflags '-X main.DefaultGitHubRepository=<your repo> -X main.DefaultGitHubUser=<your user> -X main.DefaultGitHubToken=<your token> '
 $ mv grasshopper /your/binary/path/
 ```
 

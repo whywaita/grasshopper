@@ -34,29 +34,29 @@ type GitHub struct {
 	PersonalToken string
 }
 
-func NewGitHubClient() GitHub {
+func NewGitHubClient(repo, user, token string) GitHub {
 	g := GitHub{}
 
 	if os.Getenv(envGitHubRepo) != "" {
 		g.Repo = os.Getenv(envGitHubRepo)
-	} else if DefaultGitHubRepository != "" {
-		g.Repo = DefaultGitHubRepository
+	} else if repo != "" {
+		g.Repo = repo
 	} else {
 		log.Fatal("must be set GitHub Repository")
 	}
 
 	if os.Getenv(envGitHubUser) != "" {
 		g.User = os.Getenv(envGitHubUser)
-	} else if DefaultGitHubUser != "" {
-		g.User = DefaultGitHubUser
+	} else if user != "" {
+		g.User = user
 	} else {
 		log.Println("not set GitHub Username, you can't push Private Repository.")
 	}
 
 	if os.Getenv(envGitHubToken) != "" {
 		g.PersonalToken = os.Getenv(envGitHubToken)
-	} else if DefaultGitHubToken != "" {
-		g.PersonalToken = DefaultGitHubToken
+	} else if token != "" {
+		g.PersonalToken = token
 	} else {
 		log.Println("not set GitHub Personal Token, you can't push Private Repository.")
 	}

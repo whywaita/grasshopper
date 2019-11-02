@@ -10,6 +10,12 @@ import (
 	"github.com/whywaita/grasshopper/storage"
 )
 
+var (
+	DefaultGitHubRepository string
+	DefaultGitHubUser       string
+	DefaultGitHubToken      string
+)
+
 func main() {
 	args := os.Args
 
@@ -26,7 +32,7 @@ func run(filePath string) int {
 		log.Fatal(err)
 	}
 
-	client := storage.NewGitHubClient()
+	client := storage.NewGitHubClient(DefaultGitHubRepository, DefaultGitHubUser, DefaultGitHubToken)
 	err = client.Put(path)
 	if errors.Cause(err) == storage.ErrNoChange {
 		// no change
